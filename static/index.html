@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoFit - Auto Crop & Compress</title>
+    <meta name="description"
+        content="Automatically crop and compress photos to fit exam sites, job portals & ID uploads. Passport photos, signatures, and more.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">📸</span>
+                <h1>PhotoFit</h1>
+            </div>
+            <p class="tagline">Resize & compress photos for exam sites, job portals & uploads</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-options">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <h2>Drop your image here</h2>
+                        <p>or click to browse</p>
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                        <div class="supported-formats">Supports: JPG, PNG, WEBP</div>
+                    </div>
+                    <div class="upload-divider">
+                        <span>OR</span>
+                    </div>
+                    <button class="camera-btn" id="cameraBtn">
+                        <span class="camera-icon">📸</span>
+                        <span class="camera-text">Take Photo Now</span>
+                        <span class="camera-hint">Use your camera</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Camera Modal -->
+            <div class="camera-modal" id="cameraModal">
+                <div class="camera-modal-content">
+                    <div class="camera-modal-header">
+                        <h3>📸 Take Photo</h3>
+                        <button class="close-modal-btn" id="closeCameraBtn">✕</button>
+                    </div>
+                    <div class="camera-viewport">
+                        <video id="cameraVideo" autoplay playsinline></video>
+                        <canvas id="cameraCanvas" hidden></canvas>
+                        <div class="camera-loading" id="cameraLoading">
+                            <div class="spinner"></div>
+                            <p>Starting camera...</p>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button class="switch-camera-btn" id="switchCameraBtn" title="Switch Camera">
+                            🔄
+                        </button>
+                        <button class="capture-btn" id="captureBtn">
+                            <span class="capture-ring"></span>
+                        </button>
+                        <div class="camera-spacer"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Settings Panel -->
+            <section class="settings-panel" id="settingsPanel">
+                <h3>📐 Output Settings</h3>
+
+                <!-- Preset Selection -->
+                <div class="preset-group">
+                    <label>Quick Presets</label>
+                    <div class="preset-buttons" id="presetButtons">
+                        <button class="preset-btn" data-preset="passport_india">
+                            <span class="preset-icon">🪪</span>
+                            <span class="preset-name">Passport</span>
+                            <span class="preset-specs">150×200px, 20-30KB</span>
+                        </button>
+                        <button class="preset-btn" data-preset="signature">
+                            <span class="preset-icon">✍️</span>
+                            <span class="preset-name">Signature</span>
+                            <span class="preset-specs">140×60px, 10-20KB</span>
+                        </button>
+                        <button class="preset-btn" data-preset="aadhaar">
+                            <span class="preset-icon">🆔</span>
+                            <span class="preset-name">Aadhaar</span>
+                            <span class="preset-specs">240×320px, 20-50KB</span>
+                        </button>
+                        <button class="preset-btn" data-preset="ssc_photo">
+                            <span class="preset-icon">📝</span>
+                            <span class="preset-name">SSC Photo</span>
+                            <span class="preset-specs">200×230px, 20-50KB</span>
+                        </button>
+                        <button class="preset-btn active" data-preset="custom">
+                            <span class="preset-icon">⚙️</span>
+                            <span class="preset-name">Custom</span>
+                            <span class="preset-specs">Set your own</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Format -->
+                <div class="format-group">
+                    <label for="formatSelect">Output Format</label>
+                    <div class="format-buttons" id="formatButtons">
+                        <button class="format-btn active" data-format="jpeg">
+                            <span>JPG</span>
+                        </button>
+                        <button class="format-btn" data-format="png">
+                            <span>PNG</span>
+                        </button>
+                        <button class="format-btn" data-format="webp">
+                            <span>WEBP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="custom-settings" id="customSettings">
+                    <div class="settings-row dimensions-row">
+                        <div class="setting-group">
+                            <label for="widthInput">Width</label>
+                            <input type="number" id="widthInput" value="150" min="1" max="5000" step="any">
+                        </div>
+                        <div class="setting-group">
+                            <label for="heightInput">Height</label>
+                            <input type="number" id="heightInput" value="200" min="1" max="5000" step="any">
+                        </div>
+                        <div class="setting-group unit-group">
+                            <label for="unitSelect">Unit</label>
+                            <select id="unitSelect" class="unit-select">
+                                <option value="px" selected>px</option>
+                                <option value="cm">cm</option>
+                                <option value="inch">inch</option>
+                            </select>
+                        </div>
+                        <div class="setting-group dpi-group" id="dpiGroup" style="display: none;">
+                            <label for="dpiInput">DPI</label>
+                            <input type="number" id="dpiInput" value="300" min="72" max="600">
+                        </div>
+                    </div>
+                    <div class="settings-row size-row">
+                        <div class="setting-group">
+                            <label for="minKbInput">Min (KB)</label>
+                            <input type="number" id="minKbInput" value="20" min="1" max="500" step="1">
+                        </div>
+                        <div class="setting-group">
+                            <label for="maxKbInput">Max (KB)</label>
+                            <input type="number" id="maxKbInput" value="30" min="1" max="500" step="1">
+                        </div>
+                        <div class="setting-group exact-group">
+                            <label for="exactKbInput">Exact (KB)</label>
+                            <input type="number" id="exactKbInput" placeholder="—" min="1" max="500" step="1">
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="setting-group">
+                            <label for="modeSelect">Detection Mode</label>
+                            <select id="modeSelect">
+                                <option value="face">Face (Passport/ID)</option>
+                                <option value="signature">Signature</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-row checkbox-row">
+                        <div class="setting-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="autoCropCheck" checked>
+                                Auto-crop
+                            </label>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="bwCheck">
+                                B&W
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Button -->
+                <button class="process-btn" id="processBtn" disabled>
+                    <span class="btn-icon">⚡</span>
+                    Process Image
+                </button>
+            </section>
+
+            <!-- Preview Section -->
+            <section class="preview-section" id="previewSection">
+                <div class="preview-container">
+                    <!-- Original Preview -->
+                    <div class="preview-box">
+                        <h4>📷 Original</h4>
+                        <div class="preview-image-wrap">
+                            <img id="originalPreview" src="" alt="Original image">
+                        </div>
+                        <div class="image-info" id="originalInfo">-</div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="preview-arrow">→</div>
+
+                    <!-- Processed Preview -->
+                    <div class="preview-box result">
+                        <h4>✨ Processed</h4>
+                        <div class="preview-image-wrap">
+                            <img id="processedPreview" src="" alt="Processed image">
+                            <div class="loading-overlay" id="loadingOverlay">
+                                <div class="spinner"></div>
+                                <p>Processing...</p>
+                            </div>
+                        </div>
+                        <div class="image-info" id="processedInfo">-</div>
+                    </div>
+                </div>
+
+                <!-- Result Actions -->
+                <div class="result-actions" id="resultActions">
+                    <div class="result-status" id="resultStatus"></div>
+                    <button class="download-btn" id="downloadBtn" disabled>
+                        <span>💾</span> Download Image
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made for hassle-free photo uploads ✨</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
